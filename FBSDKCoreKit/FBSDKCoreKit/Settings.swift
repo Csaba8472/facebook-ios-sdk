@@ -408,6 +408,11 @@ public final class Settings: NSObject, SettingsProtocol, SettingsLogging, _Clien
   private var _advertisingTrackingStatusFromATT: AdvertisingTrackingStatus {
     var advertisingTrackingStatus: AdvertisingTrackingStatus = .unspecified
     if #available(iOS 14.0, *) {
+      #if targetEnvironment(macCatalyst)
+      // Mac Catalyst should always report as authorized since ATTrackingManager
+      // returns incorrect status on this platform
+      advertisingTrackingStatus = .allowed
+      #else
       let status: ATTrackingManager.AuthorizationStatus = ATTrackingManager.trackingAuthorizationStatus
       switch status {
       case .authorized:
@@ -419,6 +424,7 @@ public final class Settings: NSObject, SettingsProtocol, SettingsLogging, _Clien
       @unknown default:
         advertisingTrackingStatus = .unspecified
       }
+      #endif
     }
     return advertisingTrackingStatus
   }
