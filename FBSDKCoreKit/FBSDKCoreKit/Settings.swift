@@ -420,7 +420,13 @@ public final class Settings: NSObject, SettingsProtocol, SettingsLogging, _Clien
       case .denied, .restricted:
         advertisingTrackingStatus = .disallowed
       case .notDetermined:
+        #if targetEnvironment(macCatalyst)
+        // On Mac Catalyst, treat notDetermined as authorized since the platform
+        // doesn't properly support ATTrackingManager
+        advertisingTrackingStatus = .allowed
+        #else
         advertisingTrackingStatus = .unspecified
+        #endif
       @unknown default:
         advertisingTrackingStatus = .unspecified
       }
